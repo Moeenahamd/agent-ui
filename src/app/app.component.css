@@ -1,0 +1,27 @@
+
+.msg_cotainer_send{
+    border-radius: 18px;
+    padding: 8px 16px;
+    background: rgb(15 163 255);
+    font-size: 20px;
+    position: relative;
+    color: white;
+    margin-bottom: 5px;
+}
+.msg_cotainer{
+    border-radius: 18px;
+    padding: 8px 16px;
+    background: white;
+    font-size: 20px;
+    position: relative;
+    color: black;
+    margin-bottom: 5px;
+}
+
+.media-container {
+    display: flex;
+}
+
+.media-container > * + * {
+    margin-left: 1.5rem;
+}
