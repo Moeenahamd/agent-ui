@@ -42,6 +42,7 @@ export class AppComponent implements OnInit {
   }
   conversationToken:any;
   conversationClient:any;
+  localParticipant:any;
   conversation:any;
   room:any;
   videoToken:any;
@@ -56,10 +57,10 @@ export class AppComponent implements OnInit {
   getAccessToken(){
     this.loading = true;
     this.roomName = UUID.UUID()
+    //this.localParticipant = this.socketService.id;
     this.twilioService.getAccessToken(this.socketService.id,this.roomName).subscribe((data:any)=>{
       this.conversationToken = data.conversationRoomAccessToken;
       this.videoToken = data.videoRoomAccessToken;
-      this.loading = false;
       const payload ={
         userSid:this.socketService.id,
         roomName: this.roomName,
@@ -74,8 +75,15 @@ export class AppComponent implements OnInit {
   async initChatClient(){
     this.conversationClient = await new Client(this.conversationToken);
     const conversation = await this.conversationClient.getSubscribedConversations();
+    this.loading = false;
     this.conversation = conversation.items[0]
-    console.log(this.conversation)
+    this.conversation._participants.forEach((element:any)=>{
+      if(element.state.identity == this.socketService.id){
+        //console.log(element)
+        this.localParticipant = element.state.sid
+      }
+    })
+    //console.log(this.localParticipant = this.conversation._participants)
     this.displayMessages()
     this.conversation.on("messageAdded",(conversation:any)=>{
       this.displayMessages()
@@ -83,15 +91,17 @@ export class AppComponent implements OnInit {
   }
 
   async displayMessages(){
-    const messages = await this.conversation.getMessages();
+    this.messages = [];
+    const messages = await this.conversation.getMessages(1000);
+    //console.log(messages.items)
     this.messages = messages.items
-    console.log(this.messages)
   }
 
   async sendMessage(){
     if( this.message && this.message != ''){
       await this.conversation.sendMessage(this.message);
       this.message = '';
+      //console.log(this.localParticipant)
     }
   }
   
@@ -154,7 +164,7 @@ export class AppComponent implements OnInit {
 
   async  onJoinClick() {
     //joinButton.disabled = true;
-    this.localVideoTrack()
+    //this.localVideoTrack()
 
     const room = await connect(this.videoToken, {
         name: 'room-name',
@@ -168,6 +178,7 @@ export class AppComponent implements OnInit {
     );
 
       room.on('participantConnected', participant => {
+        //this.loading = false;
         console.log(`A remote Participant connected: ${participant}`);
         participant.tracks.forEach(publication => {
           if (publication.isSubscribed) {
@@ -178,6 +189,7 @@ export class AppComponent implements OnInit {
         });
 
         participant.on('trackSubscribed', (track:any) => {
+          //this.loading = false;
 
           this.attachTrack(track)
           //document.getElementById('remote-media-div').appendChild(track.attach());
