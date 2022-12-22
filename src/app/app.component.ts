@@ -35,6 +35,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.socketService.connectSocket()
     this.socketService.callAccepted.subscribe((doc:any) => {
+      this.loading = false;
       this.socketService.userCallAccept(doc);
       this.onJoinClick()
     });
@@ -59,7 +60,7 @@ export class AppComponent implements OnInit {
     this.roomName = UUID.UUID()
     //this.localParticipant = this.socketService.id;
     const socketObj=this.socketService.getSocket();
-
+    this.localParticipant = socketObj.ioSocket.id;
     this.twilioService.getAccessToken(socketObj.ioSocket.id,this.roomName).subscribe((data:any)=>{
       this.conversationToken = data.conversationRoomAccessToken;
       this.videoToken = data.videoRoomAccessToken;
@@ -77,15 +78,7 @@ export class AppComponent implements OnInit {
   async initChatClient(){
     this.conversationClient = await new Client(this.conversationToken);
     const conversation = await this.conversationClient.getSubscribedConversations();
-    this.loading = false;
-    this.conversation = conversation.items[0]
-    this.conversation._participants.forEach((element:any)=>{
-      if(element.state.identity == this.socketService.id){
-        //console.log(element)
-        this.localParticipant = element.state.sid
-      }
-    })
-    //console.log(this.localParticipant = this.conversation._participants)
+    this.conversation = conversation.items[0];
     this.displayMessages()
     this.conversation.on("messageAdded",(conversation:any)=>{
       this.displayMessages()
@@ -93,9 +86,8 @@ export class AppComponent implements OnInit {
   }
 
   async displayMessages(){
-    this.messages = [];
     const messages = await this.conversation.getMessages(1000);
-    //console.log(messages.items)
+    console.log(messages.items)
     this.messages = messages.items
   }
 
@@ -146,6 +138,7 @@ export class AppComponent implements OnInit {
     this.renderer.setStyle(videoElement, 'position', 'absolute');
     this.renderer.setStyle(videoElement, 'object-fit', 'cover');
     this.renderer.setStyle(videoElement, 'z-index', '0');
+    this.renderer.setStyle(videoElement, 'left', '0px');
     this.renderer.appendChild(this.remoteMediaContainer.nativeElement, videoElement);
   }
 
@@ -210,7 +203,8 @@ export class AppComponent implements OnInit {
     this.renderer.setStyle(videoElement, 'width', '150px');
     this.renderer.setStyle(videoElement, 'position', 'absolute');
     this.renderer.setStyle(videoElement, 'left', '20px');
-    this.renderer.setStyle(videoElement, 'top', '40px');
+    this.renderer.setStyle(videoElement, 'top', '30px');
+    this.renderer.setStyle(videoElement, 'z-index', '1');
     this.renderer.appendChild(this.localMediaContainer.nativeElement, videoElement);
   }
 

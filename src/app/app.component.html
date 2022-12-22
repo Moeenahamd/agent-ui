@@ -9,23 +9,19 @@
 </ng-template>
 	<div class="wrapper shadow-lg">
     <div class="media-container">
-       <div #localMediaContainer style="position: absolute;
-       left: 20;
-       top: 40;
-       width: 100px; 
-       height: 100px;"></div>  
+       <div #localMediaContainer></div>  
       <div #remoteMediaContainer></div>
     </div>
         
 			<div *ngIf="!loading" style="position: relative;" >
         <div  style="width: 100%; height: 410px; word-wrap: break-word;position: absolute;padding:0px 10px;top: 170px; overflow-y: auto;">
           <div *ngFor="let message of messages">
-            <div *ngIf="message.state.participantSid != localParticipant" class="d-flex justify-content-start">
+            <div *ngIf="message.state.author != localParticipant" class="d-flex justify-content-start">
               <div class=" msg_cotainer" style="max-width: 50%;">
                 {{message.state.body}}
               </div>
             </div>
-            <div *ngIf="message.state.participantSid == localParticipant" class="d-flex justify-content-end">
+            <div *ngIf="message.state.author == localParticipant" class="d-flex justify-content-end">
               <div class=" msg_cotainer_send" style="max-width: 50%;">
                 {{message.state.body}}
               </div>
