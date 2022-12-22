@@ -12,6 +12,6 @@ export class TwilioService {
       "userName": userName,
       "roomName": roomName
     }
-    return this.http.post('http://134.122.28.251:3001/userRoutes/conversationAndVideoRoom',obj);
+    return this.http.post('https://viewpro.com/api/userRoutes/conversationAndVideoRoom',obj);
   }
 }

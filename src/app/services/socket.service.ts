@@ -9,13 +9,8 @@ export class SocketService {
   id:any;
   callAccepted = this.socket.fromEvent('CallRequestAccepted');
   constructor(private socket: Socket) { }
-  connectSocket() {
-    this.socket.emit('Connected');
-    const obj:Socket =this.socket;
-    setTimeout(()=>{
-      this.id =obj.ioSocket.id
-    },3000)
-
+  async connectSocket() {
+    await this.socket.emit('Connected');
   }
 
   callRequest(obj:any){
@@ -24,5 +19,8 @@ export class SocketService {
 
   userCallAccept(obj:any){
     this.socket.emit('UserCallAccept',obj);
+  }
+  getSocket(){
+    return this.socket;
   }
 }

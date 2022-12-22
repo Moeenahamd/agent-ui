@@ -8,7 +8,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
-const config: SocketIoConfig = { url: 'http://134.122.28.251:4545', options: {} };
+const config: SocketIoConfig = { url: 'https://viewpro.com', options: {} };
 @NgModule({
   declarations: [
     AppComponent

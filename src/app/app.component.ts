@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
     private socketService: SocketService,
     private renderer: Renderer2) { }
   ngOnInit(): void {
-    this.socketService.connectSocket();
+    this.socketService.connectSocket()
     this.socketService.callAccepted.subscribe((doc:any) => {
       this.socketService.userCallAccept(doc);
       this.onJoinClick()
@@ -58,7 +58,9 @@ export class AppComponent implements OnInit {
     this.loading = true;
     this.roomName = UUID.UUID()
     //this.localParticipant = this.socketService.id;
-    this.twilioService.getAccessToken(this.socketService.id,this.roomName).subscribe((data:any)=>{
+    const socketObj=this.socketService.getSocket();
+
+    this.twilioService.getAccessToken(socketObj.ioSocket.id,this.roomName).subscribe((data:any)=>{
       this.conversationToken = data.conversationRoomAccessToken;
       this.videoToken = data.videoRoomAccessToken;
       const payload ={
@@ -164,7 +166,7 @@ export class AppComponent implements OnInit {
 
   async  onJoinClick() {
     //joinButton.disabled = true;
-    //this.localVideoTrack()
+    this.localVideoTrack()
 
     const room = await connect(this.videoToken, {
         name: 'room-name',
@@ -203,15 +205,13 @@ export class AppComponent implements OnInit {
   async  localVideoTrack() {
     // Provides a camera preview window.
     const localVideoTrack = await createLocalVideoTrack({ width: 640 });
-    
     const videoElement = localVideoTrack.attach();
-    this.renderer.setStyle(videoElement, 'height', '100%');
-    this.renderer.setStyle(videoElement, 'width', '100%');
+    this.renderer.setStyle(videoElement, 'height', '150px');
+    this.renderer.setStyle(videoElement, 'width', '150px');
     this.renderer.setStyle(videoElement, 'position', 'absolute');
-    this.renderer.setStyle(videoElement, 'object-fit', 'cover');
-    this.renderer.setStyle(videoElement, 'z-index', '0');
+    this.renderer.setStyle(videoElement, 'left', '20px');
+    this.renderer.setStyle(videoElement, 'top', '40px');
     this.renderer.appendChild(this.localMediaContainer.nativeElement, videoElement);
-    //this.localMediaContainer.appendChild(localVideoTrack.attach());
   }
 
   
