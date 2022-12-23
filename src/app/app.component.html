@@ -13,8 +13,17 @@
       <div #remoteMediaContainer></div>
     </div>
         
-			<div *ngIf="!loading" style="position: relative;" >
-        <div  style="width: 100%; height: 410px; word-wrap: break-word;position: absolute;padding:0px 10px;top: 170px; overflow-y: auto;">
+			<div *ngIf="!loading" >
+        <div style="position: relative; height: 160px;" >
+          <i style="font-size:25px;color:white;position: absolute; top:5px;left:8px;" class="bi bi-person-circle"></i>
+          <span style="font-size:20px;color:white;position: absolute; top:7px;left:42px;">User Name</span>
+          <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px" class="bi bi-x"></i>
+          <i *ngIf="!audioMode" style="font-size:32px;color:white;position: absolute; top:55px;right:10px"(click)="unMuteAudio()" class="fas fa-microphone-slash"></i>
+          <i *ngIf="audioMode" style="font-size:32px;color:white;position: absolute; top:55px;right:10px" (click)="muteAudio()" class="fas fa-microphone"></i>
+          <i *ngIf="!videoMode" style="font-size:32px;color:white; position: absolute; top:110px;right:10px" (click)="unMuteVideo()" class="fas fa-video-slash" aria-hidden="true"></i>
+          <i *ngIf="videoMode" style="font-size:32px;color:white; position: absolute; top:110px;right:10px" (click)="muteVideo()" class="fa fa-video-camera" aria-hidden="true"></i>
+        </div>
+        <div class="messages-contect">
           <div *ngFor="let message of messages">
             <div *ngIf="message.state.author != localParticipant" class="d-flex justify-content-start">
               <div class=" msg_cotainer" style="max-width: 50%;">
@@ -28,15 +37,11 @@
             </div>
           </div>
         </div>
-				<i style="font-size:25px;color:black;position: absolute; top:5px;left:8px;" class="bi bi-person-circle"></i>
-				<span style="font-size:20px;color:black;position: absolute; top:7px;left:42px;">User Name</span>
-				<i style="font-size:32px;color:black;position: absolute; top:0px;right:10px" class="bi bi-x"></i>
-				<i style="font-size:32px;color:black;position: absolute; top:50px;right:10px" class="bi bi-mic"></i>
-				<i style="font-size:32px;color:black; position: absolute; top:100px;right:10px" class="bi bi-camera-video"></i>
-				<input class="form me-2  border" [(ngModel)]="message" style="padding:10px;border-radius:20px;outline: none; position: absolute; top:586px;left:10px; width: 320px;" type="text" placeholder="Add a Comment....">
-				<svg xmlns="http://www.w3.org/2000/svg" width="30" (click)="sendMessage()" height="30" fill="currentColor" class="bi bi-send mt-1"  style="color:black;position: absolute; top:586px;right:10px;" viewBox="0 0 16 16">
-					<path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
-				</svg>
+        <div class="footer">
+          <input class="form me-2  border" [(ngModel)]="message" style="padding:10px;border-radius:20px;outline: none;width: 80%;" type="text" placeholder="Add a Comment....">
+        <svg style="color: white;width: 45px;height: 43px; margin-left: 30px;"  (click)="sendMessage()" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><title>ionicons-v5-q</title><path d="M16,464,496,256,16,48V208l320,48L16,304Z" fill="white"></path></svg>
+        </div>
+				
 			</div>
       
 			<ngx-loading

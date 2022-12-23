@@ -165,3 +165,97 @@ to{ bottom:0; opacity:1 }
   ::-webkit-scrollbar-thumb:hover {
     background: #555; 
   }
+
+.messages-contect {
+    width: 100%; 
+    height: 425px; 
+    word-wrap: break-word;
+    padding:0px 10px;
+    overflow-y: auto;
+}
+
+@media only screen and (max-width: 500px) {
+    .wrapper {
+        width: 96% !important;
+        right: 2%;
+        bottom: 80px;
+    }
+    .chat-btn {
+        right: 5px;
+        bottom: 0px;
+    }
+}
+@media only screen and (max-width: 414px) {
+    .wrapper {
+        width: 96% !important;
+        right: 2%;
+        bottom: 80px;
+    }
+    .chat-btn {
+        right: 5px;
+        bottom: 0px;
+    }
+}
+
+@media only screen and (max-width: 390px) {
+    .wrapper {
+        width: 96% !important;
+        right: 2%;
+        bottom: 80px;
+    }
+    .chat-btn {
+        right: 5px;
+        bottom: 0px;
+    }
+}
+
+@media only screen and (max-width: 376px) {
+    .wrapper {
+        width: 96% !important;
+        height: 540px;
+        right: 2%;
+        bottom: 80px;
+    }
+    .chat-btn {
+        right: 5px;
+        bottom: 0px;
+    }
+    .messages-contect {
+        width: 100%; 
+        height: 330px; 
+    }
+}
+
+@media only screen and (max-height: 720px) {
+    .wrapper {
+        width: 96% !important;
+        height: 540px;
+        right: 2%;
+        bottom: 80px;
+    }
+    .chat-btn {
+        right: 5px;
+        bottom: 0px;
+    }
+    .messages-contect {
+        width: 100%; 
+        height: 330px; 
+    }
+}
+
+@media only screen and (max-height: 620px) {
+    .wrapper {
+        width: 96% !important;
+        height: 490px;
+        right: 2%;
+        bottom: 80px;
+    }
+    .chat-btn {
+        right: 5px;
+        bottom: 0px;
+    }
+    .messages-contect {
+        width: 100%; 
+        height: 280px; 
+    }
+}

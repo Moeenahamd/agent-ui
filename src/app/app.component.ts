@@ -51,6 +51,8 @@ export class AppComponent implements OnInit {
   roomName:any;
   message:any;
   messages:any;
+  videoMode = false;
+  audioMode = false;
   title = 'agent-ui';
   public loading = false;
   
@@ -87,7 +89,6 @@ export class AppComponent implements OnInit {
 
   async displayMessages(){
     const messages = await this.conversation.getMessages(1000);
-    console.log(messages.items)
     this.messages = messages.items
   }
 
@@ -95,7 +96,6 @@ export class AppComponent implements OnInit {
     if( this.message && this.message != ''){
       await this.conversation.sendMessage(this.message);
       this.message = '';
-      //console.log(this.localParticipant)
     }
   }
   
@@ -159,7 +159,7 @@ export class AppComponent implements OnInit {
 
   async  onJoinClick() {
     //joinButton.disabled = true;
-    this.localVideoTrack()
+    //this.localVideoTrack()
 
     const room = await connect(this.videoToken, {
         name: 'room-name',
@@ -208,5 +208,31 @@ export class AppComponent implements OnInit {
     this.renderer.appendChild(this.localMediaContainer.nativeElement, videoElement);
   }
 
-  
+  muteVideo(){
+    this.room.localParticipant.videoTracks.forEach((publication:any) => {
+      // publication.track.disable();
+      this.videoMode = false;
+      publication.track.stop();
+      publication.unpublish();
+    });
+  }
+
+  muteAudio(){
+    this.audioMode = false;
+    this.room.localParticipant.audioTracks.forEach((publication:any) => {
+      publication.track.disable();
+    });
+  }
+
+  unMuteVideo(){
+    this.videoMode = true;
+    this.localVideoTrack();
+  }
+
+  unMuteAudio(){
+    this.audioMode = true;
+    this.room.localParticipant.audioTracks.forEach((publication:any) => {
+      publication.track.enable();
+    });
+  }
 }
