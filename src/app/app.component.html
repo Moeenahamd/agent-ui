@@ -1,13 +1,13 @@
   <!-- <button id="join-button" (click)="onJoinClick()">Join Room</button> -->
   <input type="checkbox" id="check"> 
 	<label class="chat-btn" for="check" (click)="getAccessToken()">
-		<img src="../assets/instagram.png" class="comment" style="border-radius: 50%;" width="70" height="70"> 
-		<i class="fa fa-close close"></i> 
+		<img *ngIf="!chatButton" src="../assets/instagram.png" class="comment" style="border-radius: 50%;" width="70" height="70"> 
+		<i *ngIf="chatButton" class="fa fa-close close"></i> 
 	</label>
   
 <ng-template #customLoadingTemplate>
 </ng-template>
-	<div class="wrapper shadow-lg">
+	<div *ngIf="chatButton" class="wrapper shadow-lg">
     <div class="media-container">
        <div #localMediaContainer></div>  
       <div #remoteMediaContainer></div>
@@ -17,7 +17,7 @@
         <div style="position: relative; height: 160px;" >
           <i style="font-size:25px;color:white;position: absolute; top:5px;left:8px;" class="bi bi-person-circle"></i>
           <span style="font-size:20px;color:white;position: absolute; top:7px;left:42px;">User Name</span>
-          <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px" class="bi bi-x"></i>
+          <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px; cursor: pointer;" (click)="removeParticipant()" class="bi bi-x"></i>
           <i *ngIf="!audioMode" style="font-size:32px;color:white;position: absolute; top:55px;right:10px"(click)="unMuteAudio()" class="fas fa-microphone-slash"></i>
           <i *ngIf="audioMode" style="font-size:32px;color:white;position: absolute; top:55px;right:10px" (click)="muteAudio()" class="fas fa-microphone"></i>
           <i *ngIf="!videoMode" style="font-size:32px;color:white; position: absolute; top:110px;right:10px" (click)="unMuteVideo()" class="fas fa-video-slash" aria-hidden="true"></i>
@@ -25,16 +25,22 @@
         </div>
         <div class="messages-contect">
           <div *ngFor="let message of messages">
-            <div *ngIf="message.state.author != localParticipant" class="d-flex justify-content-start">
-              <div class=" msg_cotainer" style="max-width: 50%;">
+            <div class="d-flex justify-content-start">
+              <div class="msg_cotainer" style="max-width: 50%;">
+                <h4 *ngIf="message.state.author != localParticipant">
+                  Agent
+                </h4>
+                <h4 *ngIf="message.state.author == localParticipant">
+                  Me
+                </h4>
                 {{message.state.body}}
               </div>
             </div>
-            <div *ngIf="message.state.author == localParticipant" class="d-flex justify-content-end">
+            <!-- <div *ngIf="message.state.author == localParticipant" class="d-flex justify-content-end">
               <div class=" msg_cotainer_send" style="max-width: 50%;">
                 {{message.state.body}}
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
         <div class="footer">

@@ -9,15 +9,16 @@
     margin-bottom: 5px;
 }
 .msg_cotainer{
-    border-radius: 18px;
-    padding: 8px 16px;
-    background: white;
+    padding: 8px 10px;
     font-size: 20px;
     position: relative;
-    color: black;
+    color: white;
     margin-bottom: 5px;
 }
 
+h4{
+    margin: 0px;
+}
 .media-container {
     display: flex;
 }

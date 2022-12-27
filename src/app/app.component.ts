@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { TwilioService } from './services/twilio.service';
 import { Client } from '@twilio/conversations';
 import * as Video from 'twilio-video';
@@ -31,7 +31,8 @@ export class AppComponent implements OnInit {
   constructor(
     private twilioService: TwilioService,
     private socketService: SocketService,
-    private renderer: Renderer2) { }
+    private renderer: Renderer2,
+    private el:ElementRef) { }
   ngOnInit(): void {
     this.socketService.connectSocket()
     this.socketService.callAccepted.subscribe((doc:any) => {
@@ -53,11 +54,13 @@ export class AppComponent implements OnInit {
   messages:any;
   videoMode = false;
   audioMode = false;
+  chatButton = false;
   title = 'agent-ui';
   public loading = false;
   
 
   getAccessToken(){
+    this.chatButton = true;
     this.loading = true;
     this.roomName = UUID.UUID()
     //this.localParticipant = this.socketService.id;
@@ -131,6 +134,7 @@ export class AppComponent implements OnInit {
 
     this.attachTrack(track);
   }
+
   attachTrack(track: RemoteAudioTrack | RemoteVideoTrack) {
     const videoElement = track.attach();
     this.renderer.setStyle(videoElement, 'height', '100%');
@@ -147,7 +151,6 @@ export class AppComponent implements OnInit {
         track.detach().forEach(element => element.remove());
   }
 
-
   trackExistsAndIsAttachable(track?: any): track is RemoteAudioTrack | RemoteVideoTrack {
     return !!track && (
         (track as RemoteAudioTrack).attach !== undefined ||
@@ -155,66 +158,67 @@ export class AppComponent implements OnInit {
     );
   }
 
-
-
-  async  onJoinClick() {
+  async onJoinClick() {
     //joinButton.disabled = true;
     //this.localVideoTrack()
 
-    const room = await connect(this.videoToken, {
-        name: 'room-name',
+     await connect(this.videoToken, {
+        name: this.roomName,
         audio: true,
-        video: { width: 640 }
+        video:{}
     }).then(room => {
       console.log(`Successfully joined a Room: ${room.localParticipant}`);
+      this.room = room;
 
       room.participants.forEach(
         participant => this.manageTracksForRemoteParticipant(participant)
-    );
-
-      room.on('participantConnected', participant => {
+      );
+      this.room.on('disconnected', (room:any) => {
+        room.localParticipant.tracks.forEach((publication:any) => {
+          const attachedElements = publication.track.detach();
+          attachedElements.forEach((element:any) => element.remove());
+        });
+      });
+    
+      this.room.on('participantConnected', (participant:any) => {
         //this.loading = false;
         console.log(`A remote Participant connected: ${participant}`);
-        participant.tracks.forEach(publication => {
+        participant.tracks.forEach((publication:any) => {
           if (publication.isSubscribed) {
             const track:any = publication.track;
             this.attachTrack(track)
-            //document.getElementById('remote-media-div').appendChild(track.attach());
           }
         });
 
         participant.on('trackSubscribed', (track:any) => {
-          //this.loading = false;
-
           this.attachTrack(track)
-          //document.getElementById('remote-media-div').appendChild(track.attach());
         });
       });
     }, error => {
       console.error(`Unable to connect to Room: ${error.message}`);
     });
   }
-  
-  async  localVideoTrack() {
+  videoElement:any
+  async localVideoTrack() {
     // Provides a camera preview window.
-    const localVideoTrack = await createLocalVideoTrack({ width: 640 });
-    const videoElement = localVideoTrack.attach();
-    this.renderer.setStyle(videoElement, 'height', '150px');
-    this.renderer.setStyle(videoElement, 'width', '150px');
-    this.renderer.setStyle(videoElement, 'position', 'absolute');
-    this.renderer.setStyle(videoElement, 'left', '20px');
-    this.renderer.setStyle(videoElement, 'top', '30px');
-    this.renderer.setStyle(videoElement, 'z-index', '1');
-    this.renderer.appendChild(this.localMediaContainer.nativeElement, videoElement);
+    const localVideoTrack = await createLocalVideoTrack();
+    this.videoElement = localVideoTrack.attach();
+    this.renderer.setStyle(this.videoElement, 'height', '150px');
+    this.renderer.setStyle(this.videoElement, 'width', '150px');
+    this.renderer.setStyle(this.videoElement, 'position', 'absolute');
+    this.renderer.setStyle(this.videoElement, 'left', '20px');
+    this.renderer.setStyle(this.videoElement, 'top', '30px');
+    this.renderer.setStyle(this.videoElement, 'z-index', '1');
+    this.renderer.appendChild(this.localMediaContainer.nativeElement, this.videoElement);
   }
 
   muteVideo(){
+    this.videoMode = false;
     this.room.localParticipant.videoTracks.forEach((publication:any) => {
-      // publication.track.disable();
-      this.videoMode = false;
       publication.track.stop();
       publication.unpublish();
     });
+    this.renderer.removeChild(this.localMediaContainer.nativeElement, this.videoElement)
   }
 
   muteAudio(){
@@ -234,5 +238,10 @@ export class AppComponent implements OnInit {
     this.room.localParticipant.audioTracks.forEach((publication:any) => {
       publication.track.enable();
     });
+  }
+
+  removeParticipant(){
+    this.room.disconnect();
+    this.chatButton = false;
   }
 }
