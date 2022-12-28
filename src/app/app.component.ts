@@ -164,8 +164,8 @@ export class AppComponent implements OnInit {
 
      await connect(this.videoToken, {
         name: this.roomName,
-        audio: true,
-        video:{}
+        audio: false,
+        video: false
     }).then(room => {
       console.log(`Successfully joined a Room: ${room.localParticipant}`);
       this.room = room;

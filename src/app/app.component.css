@@ -29,5 +29,7 @@ h4{
 
 .footer{ 
     width: 100%;
+    position: absolute;
+    bottom: 10px;
 }
 

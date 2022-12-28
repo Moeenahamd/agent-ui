@@ -171,6 +171,7 @@ to{ bottom:0; opacity:1 }
     height: 425px; 
     word-wrap: break-word;
     padding:0px 10px;
+    position: absolute;
     overflow-y: auto;
 }
 
