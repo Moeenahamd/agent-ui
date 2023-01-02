@@ -8,10 +8,11 @@ import { SocketService } from './services/socket.service';
 import { 
   connect,
   createLocalVideoTrack,
+  createLocalAudioTrack,
   RemoteAudioTrack, 
   RemoteParticipant, 
   RemoteTrack, 
-  RemoteVideoTrack, 
+  RemoteVideoTrack,
   Room
 } from 'twilio-video';
 
@@ -37,8 +38,16 @@ export class AppComponent implements OnInit {
     this.socketService.connectSocket()
     this.socketService.callAccepted.subscribe((doc:any) => {
       this.loading = false;
+      this.userSid = doc.userSid
       this.socketService.userCallAccept(doc);
       this.onJoinClick()
+    });
+    this.socketService.messageReceived.subscribe((doc:any) => {
+      const payload ={
+        'msg':doc.msg,
+        'agentName':'Test'
+      }
+      this.messages.push(payload)
     });
  
   }
@@ -47,16 +56,20 @@ export class AppComponent implements OnInit {
   localParticipant:any;
   conversation:any;
   room:any;
+  userSid:any;
   videoToken:any;
   userName:any;
   roomName:any;
   message:any;
-  messages:any;
+  messages:any[]=[];
   videoMode = false;
   audioMode = false;
   chatButton = false;
   title = 'agent-ui';
   public loading = false;
+  public videoPublished = false;
+  public audioPublished = false;
+  UserlocalVideoTrack:any;
   
 
   getAccessToken(){
@@ -82,12 +95,12 @@ export class AppComponent implements OnInit {
 
   async initChatClient(){
     this.conversationClient = await new Client(this.conversationToken);
-    const conversation = await this.conversationClient.getSubscribedConversations();
-    this.conversation = conversation.items[0];
-    this.displayMessages()
-    this.conversation.on("messageAdded",(conversation:any)=>{
-      this.displayMessages()
-    })
+    //const conversation = await this.conversationClient.getSubscribedConversations();
+    //this.conversation = conversation.items[0];
+    //this.displayMessages()
+    // this.conversation.on("messageAdded",(conversation:any)=>{
+    //   this.displayMessages()
+    // })
   }
 
   async displayMessages(){
@@ -97,7 +110,15 @@ export class AppComponent implements OnInit {
 
   async sendMessage(){
     if( this.message && this.message != ''){
-      await this.conversation.sendMessage(this.message);
+      const payload ={
+        "roomName":this.userSid,
+        "msg":this.message
+      }
+      this.socketService.userSendMessage(payload)
+      this.messages.push({
+        "msg":this.message
+      })
+      //await this.conversation.sendMessage(this.message);
       this.message = '';
     }
   }
@@ -199,12 +220,12 @@ export class AppComponent implements OnInit {
     });
   }
   videoElement:any
-  async localVideoTrack() {
+  async localVideoTrack(localVideoTrack:any) {
     // Provides a camera preview window.
-    const localVideoTrack = await createLocalVideoTrack();
+    
     this.videoElement = localVideoTrack.attach();
-    this.renderer.setStyle(this.videoElement, 'height', '150px');
-    this.renderer.setStyle(this.videoElement, 'width', '150px');
+    this.renderer.setStyle(this.videoElement, 'height', '130px');
+    this.renderer.setStyle(this.videoElement, 'width', '130px');
     this.renderer.setStyle(this.videoElement, 'position', 'absolute');
     this.renderer.setStyle(this.videoElement, 'left', '20px');
     this.renderer.setStyle(this.videoElement, 'top', '30px');
@@ -215,8 +236,8 @@ export class AppComponent implements OnInit {
   muteVideo(){
     this.videoMode = false;
     this.room.localParticipant.videoTracks.forEach((publication:any) => {
-      publication.track.stop();
-      publication.unpublish();
+      publication.track.disable();
+     // publication.unpublish();
     });
     this.renderer.removeChild(this.localMediaContainer.nativeElement, this.videoElement)
   }
@@ -228,16 +249,53 @@ export class AppComponent implements OnInit {
     });
   }
 
-  unMuteVideo(){
+  async unMuteVideo(){
+
     this.videoMode = true;
-    this.localVideoTrack();
+    let localVideoTrack = await createLocalVideoTrack();
+    this.localVideoTrack(localVideoTrack);
+
+    if(this.videoPublished === false) {
+
+      console.log("going to publish video")
+      this.room.localParticipant.publishTrack(localVideoTrack, {
+        priority: 'high'
+      })
+      this.videoPublished = true;
+    }
+    else {
+      this.room.localParticipant.videoTracks.forEach((track:any) => {
+        track.track.enable();
+      });
+    }
+    
   }
 
-  unMuteAudio(){
+  async unMuteAudio(){
     this.audioMode = true;
-    this.room.localParticipant.audioTracks.forEach((publication:any) => {
-      publication.track.enable();
-    });
+    
+    if(this.audioPublished === false) {
+
+     /*  const options = new CreateLocalAudioTrackOptions({
+        deviceId: 'default',
+        enable: true,
+        name: 'user audio track'
+      });
+      */
+      let localAudioTrack = await createLocalAudioTrack({});
+
+    
+      console.log("going to publish video")
+      this.room.localParticipant.publishTrack(localAudioTrack, {
+        priority: 'high'
+      })
+      this.audioPublished = true;
+    }
+    else {
+      this.room.localParticipant.audioTracks.forEach((publication:any) => {
+        publication.track.enable();
+      });
+    }
   }
 
   removeParticipant(){

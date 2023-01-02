@@ -8,6 +8,7 @@ import { map } from 'rxjs/operators';
 export class SocketService {
   id:any;
   callAccepted = this.socket.fromEvent('CallRequestAccepted');
+  messageReceived = this.socket.fromEvent('agentMessage');
   constructor(private socket: Socket) { }
   async connectSocket() {
     await this.socket.emit('Connected');
@@ -19,6 +20,10 @@ export class SocketService {
 
   userCallAccept(obj:any){
     this.socket.emit('UserCallAccept',obj);
+  }
+
+  userSendMessage(obj:any){
+    this.socket.emit('userSendMessage',obj);
   }
   getSocket(){
     return this.socket;
