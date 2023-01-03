@@ -286,7 +286,13 @@ to{ bottom:0; opacity:1 }
         height: 280px; 
     }
 }
-
+.loader-content{    
+    position: absolute;
+    background-image: url('assets/instagram.png');
+    width: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 100%;}
 .loading {
     margin: 20px;
     width: 100px;
