@@ -34,3 +34,22 @@ h4{
     padding-left: 10px;
 }
 
+.bg-image{
+    height:100%;
+    width:100%;
+    position:absolute;
+    object-fit:cover;
+    /* z-index: -1; */
+    left: 0px;filter: blur(8px);
+    -webkit-filter: blur(8px);
+    
+    /* Full height */
+    height: 100%; 
+    
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url('../assets/background.png');
+}
+
