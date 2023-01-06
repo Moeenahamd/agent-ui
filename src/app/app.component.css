@@ -1,23 +1,13 @@
-
-.msg_cotainer_send{
-    border-radius: 18px;
-    padding: 8px 16px;
-    background: rgb(15 163 255);
-    font-size: 20px;
-    position: relative;
-    color: white;
-    margin-bottom: 5px;
-}
 .msg_cotainer{
-    padding: 8px 10px;
-    font-size: 20px;
-    position: relative;
+    padding: 2px 10px;
+    font-size: 15px;
     color: white;
-    margin-bottom: 5px;
+    width: 270px;
 }
 
 h4{
     margin: 0px;
+    font-size: 17px;
 }
 .media-container {
     display: flex;
