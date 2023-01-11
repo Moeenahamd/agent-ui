@@ -74,7 +74,7 @@ export class AppComponent implements OnInit {
 
   getAccessToken(){
     this.chatButton = true;
-    //this.loading = true;
+    this.loading = true;
     this.roomName = UUID.UUID()
     //this.localParticipant = this.socketService.id;
     const socketObj=this.socketService.getSocket();
@@ -299,7 +299,8 @@ export class AppComponent implements OnInit {
   }
 
   removeParticipant(){
-    this.room.disconnect();
-    this.chatButton = false;
+    this.socketService.callDicconnected(this.userSid)
+    // this.room.disconnect();
+    // this.chatButton = false;
   }
 }

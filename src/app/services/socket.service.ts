@@ -25,6 +25,9 @@ export class SocketService {
   userSendMessage(obj:any){
     this.socket.emit('userSendMessage',obj);
   }
+  callDicconnected(obj:any){
+    this.socket.emit('UserDisconnect',obj);
+  }
   getSocket(){
     return this.socket;
   }
