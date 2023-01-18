@@ -29,6 +29,8 @@ const remoteMediaContainer = document.querySelector('#remote-media-container') a
 export class AppComponent implements OnInit {
   @ViewChild ('localMediaContainer') localMediaContainer:any;
   @ViewChild ('remoteMediaContainer') remoteMediaContainer:any;
+  agentImage:any = "url('../assets/background.png')";
+  avatar:any = "../assets/background.png";
   constructor(
     private twilioService: TwilioService,
     private socketService: SocketService,
@@ -36,11 +38,16 @@ export class AppComponent implements OnInit {
     private el:ElementRef) { }
   ngOnInit(): void {
     this.socketService.connectSocket()
-    this.socketService.callAccepted.subscribe((doc:any) => {
+    this.socketService.CallRequestAccepted.subscribe((doc:any) => {
       this.loading = false;
-      this.userSid = doc.userSid
+      this.userSid = doc.userSid;
+      this.agentImage = doc.image;
+      this.avatar = doc.avatar;
       this.socketService.userCallAccept(doc);
       this.onJoinClick()
+    });
+    this.twilioService.getAgentImage().subscribe((doc:any) => {
+      this.agentImage = doc.img;
     });
     this.socketService.messageReceived.subscribe((doc:any) => {
       const payload ={
@@ -74,7 +81,7 @@ export class AppComponent implements OnInit {
 
   getAccessToken(){
     this.chatButton = true;
-    this.loading = true;
+    //this.loading = true;
     this.roomName = UUID.UUID()
     //this.localParticipant = this.socketService.id;
     const socketObj=this.socketService.getSocket();
@@ -118,7 +125,6 @@ export class AppComponent implements OnInit {
       this.messages.push({
         "msg":this.message
       })
-      //await this.conversation.sendMessage(this.message);
       this.message = '';
     }
   }
@@ -159,6 +165,16 @@ export class AppComponent implements OnInit {
   attachTrack(track: RemoteAudioTrack | RemoteVideoTrack) {
     const videoElement = track.attach();
     this.renderer.setStyle(videoElement, 'height', '100%');
+    this.renderer.setStyle(videoElement, 'width', '100%');
+    this.renderer.setStyle(videoElement, 'position', 'absolute');
+    this.renderer.setStyle(videoElement, 'object-fit', 'cover');
+    this.renderer.setStyle(videoElement, 'z-index', '0');
+    this.renderer.setStyle(videoElement, 'left', '0px');
+    this.renderer.appendChild(this.remoteMediaContainer.nativeElement, videoElement);
+  }
+  attachMultiVideoTrack(track: RemoteAudioTrack | RemoteVideoTrack) {
+    const videoElement = track.attach();
+    this.renderer.setStyle(videoElement, 'height', '50%');
     this.renderer.setStyle(videoElement, 'width', '100%');
     this.renderer.setStyle(videoElement, 'position', 'absolute');
     this.renderer.setStyle(videoElement, 'object-fit', 'cover');

@@ -7,7 +7,7 @@
 
 h4{
     margin: 0px;
-    font-size: 17px;
+    font-size: 15px;
 }
 .media-container {
     display: flex;
@@ -40,6 +40,5 @@ h4{
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    background-image: url('../assets/background.png');
 }
 

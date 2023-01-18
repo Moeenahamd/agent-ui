@@ -14,4 +14,8 @@ export class TwilioService {
     }
     return this.http.post('https://viewpro.com/api/userRoutes/conversationAndVideoRoom',obj);
   }
+
+  getAgentImage() {
+    return this.http.get('https://viewpro.com/api/userRoutes/conversationAndVideoRoom');
+  }
 }

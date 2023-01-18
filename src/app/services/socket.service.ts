@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 })
 export class SocketService {
   id:any;
-  callAccepted = this.socket.fromEvent('CallRequestAccepted');
+  CallRequestAccepted = this.socket.fromEvent('CallRequestAccepted');
   messageReceived = this.socket.fromEvent('agentMessage');
   constructor(private socket: Socket) { }
   async connectSocket() {
