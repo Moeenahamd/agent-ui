@@ -40,6 +40,7 @@ export class AppComponent implements OnInit {
     this.socketService.connectSocket()
     this.socketService.CallRequestAccepted.subscribe((doc:any) => {
       this.loading = false;
+      console.log(doc)
       this.userSid = doc.userSid;
       this.agentImage = doc.image;
       this.avatar = doc.avatar;
@@ -81,7 +82,7 @@ export class AppComponent implements OnInit {
 
   getAccessToken(){
     this.chatButton = true;
-    //this.loading = true;
+    this.loading = true;
     this.roomName = UUID.UUID()
     //this.localParticipant = this.socketService.id;
     const socketObj=this.socketService.getSocket();
@@ -219,7 +220,7 @@ export class AppComponent implements OnInit {
     
       this.room.on('participantConnected', (participant:any) => {
         //this.loading = false;
-        console.log(`A remote Participant connected: ${participant}`);
+        console.log(`A remote Participant connected: ${participant}`, participant.tracks);
         participant.tracks.forEach((publication:any) => {
           if (publication.isSubscribed) {
             const track:any = publication.track;
