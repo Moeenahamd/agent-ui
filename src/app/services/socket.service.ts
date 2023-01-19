@@ -9,6 +9,7 @@ export class SocketService {
   id:any;
   CallRequestAccepted = this.socket.fromEvent('CallRequestAccepted');
   messageReceived = this.socket.fromEvent('agentMessage');
+  userDisconnected = this.socket.fromEvent('userDisconnected');
   constructor(private socket: Socket) { }
   async connectSocket() {
     await this.socket.emit('Connected');

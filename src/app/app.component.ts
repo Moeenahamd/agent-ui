@@ -15,6 +15,7 @@ import {
   RemoteVideoTrack,
   Room
 } from 'twilio-video';
+import { ToastContainerDirective, ToastrService } from 'ngx-toastr';
 
 
 const joinButton = document.querySelector('#join-button') as HTMLButtonElement;
@@ -29,21 +30,28 @@ const remoteMediaContainer = document.querySelector('#remote-media-container') a
 export class AppComponent implements OnInit {
   @ViewChild ('localMediaContainer') localMediaContainer:any;
   @ViewChild ('remoteMediaContainer') remoteMediaContainer:any;
+  @ViewChild(ToastContainerDirective, { static: true })
+  toastContainer: any;
+
   agentImage:any = "url('../assets/background.png')";
-  avatar:any = "../assets/background.png";
+  avatar:any = "https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg";
   constructor(
     private twilioService: TwilioService,
     private socketService: SocketService,
     private renderer: Renderer2,
+    private toastr: ToastrService,
     private el:ElementRef) { }
   ngOnInit(): void {
+    this.toastr.overlayContainer = this.toastContainer;
     this.socketService.connectSocket()
     this.socketService.CallRequestAccepted.subscribe((doc:any) => {
       this.loading = false;
       console.log(doc)
       this.userSid = doc.userSid;
+      if(doc.avatar && doc.avatar != ""){
+        this.avatar = doc.avatar;
+      }
       this.agentImage = doc.image;
-      this.avatar = doc.avatar;
       this.socketService.userCallAccept(doc);
       this.onJoinClick()
     });
@@ -78,13 +86,23 @@ export class AppComponent implements OnInit {
   public videoPublished = false;
   public audioPublished = false;
   UserlocalVideoTrack:any;
-  
+  timerInterval: any;
+  timer() {
+    // let minute = 1;
+    let seconds: number = 60;
+    this.timerInterval = setInterval(() => {
+      seconds--;
+      if (seconds == 0) {
+        clearInterval(this.timerInterval);
+        this.toastr.error('No Agent available for call')
+      }
+    }, 1000);
+  }
 
   getAccessToken(){
     this.chatButton = true;
     this.loading = true;
     this.roomName = UUID.UUID()
-    //this.localParticipant = this.socketService.id;
     const socketObj=this.socketService.getSocket();
     this.localParticipant = socketObj.ioSocket.id;
     this.twilioService.getAccessToken(socketObj.ioSocket.id,this.roomName).subscribe((data:any)=>{
@@ -95,6 +113,7 @@ export class AppComponent implements OnInit {
         roomName: this.roomName,
         conversationSID: data.conversationRoom.sid
       }
+      this.timer();
       this.initChatClient();
       this.onJoinClick();
       this.socketService.callRequest(payload);
@@ -103,12 +122,6 @@ export class AppComponent implements OnInit {
 
   async initChatClient(){
     this.conversationClient = await new Client(this.conversationToken);
-    //const conversation = await this.conversationClient.getSubscribedConversations();
-    //this.conversation = conversation.items[0];
-    //this.displayMessages()
-    // this.conversation.on("messageAdded",(conversation:any)=>{
-    //   this.displayMessages()
-    // })
   }
 
   async displayMessages(){
@@ -221,6 +234,9 @@ export class AppComponent implements OnInit {
       this.room.on('participantConnected', (participant:any) => {
         //this.loading = false;
         console.log(`A remote Participant connected: ${participant}`, participant.tracks);
+        this.toastr.success('Agent received the call ')
+        console.log(this.room);
+
         participant.tracks.forEach((publication:any) => {
           if (publication.isSubscribed) {
             const track:any = publication.track;

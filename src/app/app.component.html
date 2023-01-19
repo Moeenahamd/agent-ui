@@ -4,10 +4,9 @@
 		<img *ngIf="!chatButton" src="../assets/instagram.png" class="comment" style="border-radius: 50%;"> 
 		<i *ngIf="chatButton" class="fa fa-close close"></i> 
 	</label>
-  
 <ng-template #customLoadingTemplate>
 </ng-template>
-	<div *ngIf="chatButton" class="wrapper shadow-lg">
+	<div *ngIf="chatButton" class="wrapper shadow-lg" #toastContainer>
     <div class="bg-image" [style.background-image]="agentImage"></div>
     <div *ngIf="loading" class="loader-content">
       <div class="loading">
@@ -37,8 +36,11 @@
           <div class="wrapper1">
             <div class="content">
               <div *ngFor="let message of messages" class="d-flex justify-content-start">
-                <div style="margin-top:-4px">
-                  <img [src]="avatar" style="border-radius: 50%;" width="30" height="30">
+                <div *ngIf="!message.agentName">
+                  <img src="../assets/user-avatar.png"  style="border-radius: 50%;" width="30" height="30">
+                </div>
+                <div *ngIf="message.agentName">
+                  <img [src]="avatar"  style="border-radius: 50%;" width="30" height="30">
                 </div>
                 <div class="msg_cotainer">
                   <h4 *ngIf="message.agentName">
