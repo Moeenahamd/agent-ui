@@ -65,6 +65,9 @@ export class AppComponent implements OnInit {
       }
       this.messages.push(payload)
     });
+    this.socketService.agentDisconnected.subscribe((doc:any) => {
+      this.toastr.success('Call disconnected or agent leaved')
+    });
  
   }
   conversationToken:any;
@@ -94,7 +97,8 @@ export class AppComponent implements OnInit {
       seconds--;
       if (seconds == 0) {
         clearInterval(this.timerInterval);
-        this.toastr.error('No Agent available for call')
+        if(this.loading)
+          this.toastr.error('No Agent available for call')
       }
     }, 1000);
   }
@@ -333,7 +337,7 @@ export class AppComponent implements OnInit {
 
   removeParticipant(){
     this.socketService.callDicconnected(this.userSid)
-    // this.room.disconnect();
-    // this.chatButton = false;
+    this.room.disconnect();
+    this.chatButton = false;
   }
 }
