@@ -248,7 +248,7 @@ to{ bottom:0; opacity:1 }
 } */
 @media only screen and (max-height: 760px) {
     .wrapper {
-        height: 100vh;
+        height: calc(100vh - env(safe-area-inset-bottom));
         width: 400px;
         bottom: 0px;
     }
@@ -296,7 +296,7 @@ to{ bottom:0; opacity:1 }
         width: 100% !important;
         border-radius: 0px;
         left: 0px;
-        height: 100vh;
+        height: calc(100vh - env(safe-area-inset-bottom));
         bottom: 0px;
     }
     .chat-btn {
@@ -316,7 +316,7 @@ to{ bottom:0; opacity:1 }
         width: 100% !important;
         border-radius: 0px;
         left: 0px;
-        height: 100vh;
+        height: calc(100vh - env(safe-area-inset-bottom));
         bottom: 0px;
     }
     .chat-btn {
@@ -336,7 +336,7 @@ to{ bottom:0; opacity:1 }
         width: 100% !important;
         border-radius: 0px;
         left: 0px;
-        height: 100vh;
+        height: calc(100vh - env(safe-area-inset-bottom));
         bottom: 0px;
     }
     .chat-btn {

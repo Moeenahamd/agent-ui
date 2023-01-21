@@ -66,6 +66,7 @@ export class AppComponent implements OnInit {
       this.messages.push(payload)
     });
     this.socketService.agentDisconnected.subscribe((doc:any) => {
+      this.messages = [];
       this.toastr.success('Call disconnected or agent leaved')
     });
  
