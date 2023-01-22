@@ -42,6 +42,7 @@ export class AppComponent implements OnInit {
     private toastr: ToastrService,
     private el:ElementRef) { }
   ngOnInit(): void {
+    console.log(window.innerHeight)
     this.toastr.overlayContainer = this.toastContainer;
     this.socketService.connectSocket()
     this.socketService.CallRequestAccepted.subscribe((doc:any) => {
