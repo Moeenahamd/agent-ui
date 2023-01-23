@@ -46,7 +46,6 @@ jobs:
         
         script: |
           cd ~/twiliovideochat/agent-ui
-          git pull origin main
           npm run build
           cp -a ~/twiliovideochat/agent-ui/dist/agent-ui/. /var/www/html
           
