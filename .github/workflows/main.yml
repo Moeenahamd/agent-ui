@@ -41,7 +41,7 @@ jobs:
       uses: appleboy/ssh-action@v0.1.4
       with:
         host: 134.122.28.251
-        key: ${{ secrets.AGENT_KEY }}
+        password: ${{ secrets.AGENT_KEY }}
         username: root
         
         script: |
