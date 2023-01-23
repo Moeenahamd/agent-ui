@@ -45,9 +45,8 @@ jobs:
         username: root
         
         script: |
-          cd ~/twiliovideochat/agent-ui
-          npm run build
-          cp -a ~/twiliovideochat/agent-ui/dist/agent-ui/. /var/www/html
+
+          cp -a ~/twiliovideochat/agent-ui/. ~/twiliovideochat/
           
         
     
