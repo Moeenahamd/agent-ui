@@ -32,7 +32,7 @@ export class AppComponent implements OnInit {
   @ViewChild ('remoteMediaContainer') remoteMediaContainer:any;
   @ViewChild(ToastContainerDirective, { static: true })
   toastContainer: any;
-
+  contHeigth:any;
   agentImage:any = "url('../assets/background.png')";
   avatar:any = "https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg";
   constructor(
@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
     private toastr: ToastrService,
     private el:ElementRef) { }
   ngOnInit(): void {
-    console.log(window.innerHeight)
+    (this.el.nativeElement as HTMLElement).style.setProperty('--vh', window.innerHeight.toString()+"px")
     this.toastr.overlayContainer = this.toastContainer;
     this.socketService.connectSocket()
     this.socketService.CallRequestAccepted.subscribe((doc:any) => {
