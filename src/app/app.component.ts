@@ -47,7 +47,6 @@ export class AppComponent implements OnInit {
     this.socketService.connectSocket()
     this.socketService.CallRequestAccepted.subscribe((doc:any) => {
       this.loading = false;
-      console.log(doc)
       this.userSid = doc.userSid;
       if(doc.avatar && doc.avatar != ""){
         this.avatar = doc.avatar;
@@ -82,6 +81,8 @@ export class AppComponent implements OnInit {
   userName:any;
   roomName:any;
   message:any;
+  agentCount =0;
+  showButton = false;
   messages:any[]=[];
   videoMode = false;
   audioMode = false;
@@ -100,11 +101,13 @@ export class AppComponent implements OnInit {
       if (seconds == 0) {
         clearInterval(this.timerInterval);
         if(this.loading)
-          this.toastr.error('No Agent available for call')
+          this.toastr.error('No agents availble right now please try again in a while')
+          this.loading = false;
+          this.showButton = true;
       }
     }, 1000);
   }
-
+  payload:any;
   getAccessToken(){
     this.chatButton = true;
     this.loading = true;
@@ -114,7 +117,7 @@ export class AppComponent implements OnInit {
     this.twilioService.getAccessToken(socketObj.ioSocket.id,this.roomName).subscribe((data:any)=>{
       this.conversationToken = data.conversationRoomAccessToken;
       this.videoToken = data.videoRoomAccessToken;
-      const payload ={
+      this.payload ={
         userSid:this.socketService.id,
         roomName: this.roomName,
         conversationSID: data.conversationRoom.sid
@@ -122,8 +125,14 @@ export class AppComponent implements OnInit {
       this.timer();
       this.initChatClient();
       this.onJoinClick();
-      this.socketService.callRequest(payload);
+      this.socketService.callRequest(this.payload);
     })
+  }
+
+  callRequest(){
+    this.socketService.callRequest(this.payload);
+    this.loading = true;
+    this.showButton = false;
   }
 
   async initChatClient(){
@@ -181,18 +190,19 @@ export class AppComponent implements OnInit {
 
     this.attachTrack(track);
   }
-
+  firstvideoElement:any;
   attachTrack(track: RemoteAudioTrack | RemoteVideoTrack) {
-    const videoElement = track.attach();
-    this.renderer.setStyle(videoElement, 'height', '100%');
-    this.renderer.setStyle(videoElement, 'width', '100%');
-    this.renderer.setStyle(videoElement, 'position', 'absolute');
-    this.renderer.setStyle(videoElement, 'object-fit', 'cover');
-    this.renderer.setStyle(videoElement, 'z-index', '0');
-    this.renderer.setStyle(videoElement, 'left', '0px');
-    this.renderer.appendChild(this.remoteMediaContainer.nativeElement, videoElement);
+    this.firstvideoElement = track.attach();
+    this.renderer.setStyle(this.firstvideoElement, 'height', '100%');
+    this.renderer.setStyle(this.firstvideoElement, 'width', '100%');
+    this.renderer.setStyle(this.firstvideoElement, 'position', 'absolute');
+    this.renderer.setStyle(this.firstvideoElement, 'object-fit', 'cover');
+    this.renderer.setStyle(this.firstvideoElement, 'z-index', '0');
+    this.renderer.setStyle(this.firstvideoElement, 'left', '0px');
+    this.renderer.appendChild(this.remoteMediaContainer.nativeElement, this.firstvideoElement);
   }
   attachMultiVideoTrack(track: RemoteAudioTrack | RemoteVideoTrack) {
+    this.renderer.setStyle(this.firstvideoElement, 'height', '50%');
     const videoElement = track.attach();
     this.renderer.setStyle(videoElement, 'height', '50%');
     this.renderer.setStyle(videoElement, 'width', '100%');
@@ -200,6 +210,7 @@ export class AppComponent implements OnInit {
     this.renderer.setStyle(videoElement, 'object-fit', 'cover');
     this.renderer.setStyle(videoElement, 'z-index', '0');
     this.renderer.setStyle(videoElement, 'left', '0px');
+    this.renderer.setStyle(videoElement, 'top', '50%');
     this.renderer.appendChild(this.remoteMediaContainer.nativeElement, videoElement);
   }
 
@@ -226,6 +237,7 @@ export class AppComponent implements OnInit {
     }).then(room => {
       console.log(`Successfully joined a Room: ${room.localParticipant}`);
       this.room = room;
+      console.log(this.room);
 
       room.participants.forEach(
         participant => this.manageTracksForRemoteParticipant(participant)
@@ -241,16 +253,23 @@ export class AppComponent implements OnInit {
         //this.loading = false;
         console.log(`A remote Participant connected: ${participant}`, participant.tracks);
         this.toastr.success('Agent received the call ')
-        console.log(this.room);
-
+        this.agentCount++
         participant.tracks.forEach((publication:any) => {
           if (publication.isSubscribed) {
             const track:any = publication.track;
+            if(this.agentCount == 2){
+              this.attachMultiVideoTrack(track)
+            }
+            else
             this.attachTrack(track)
           }
         });
 
         participant.on('trackSubscribed', (track:any) => {
+          if(this.agentCount == 2){
+            this.attachMultiVideoTrack(track)
+          }
+          else
           this.attachTrack(track)
         });
       });
@@ -263,11 +282,11 @@ export class AppComponent implements OnInit {
     // Provides a camera preview window.
     
     this.videoElement = localVideoTrack.attach();
-    this.renderer.setStyle(this.videoElement, 'height', '130px');
-    this.renderer.setStyle(this.videoElement, 'width', '130px');
+    this.renderer.setStyle(this.videoElement, 'height', '115px');
+    this.renderer.setStyle(this.videoElement, 'width', '115px');
     this.renderer.setStyle(this.videoElement, 'position', 'absolute');
     this.renderer.setStyle(this.videoElement, 'left', '20px');
-    this.renderer.setStyle(this.videoElement, 'top', '30px');
+    this.renderer.setStyle(this.videoElement, 'top', '40px');
     this.renderer.setStyle(this.videoElement, 'z-index', '1');
     this.renderer.appendChild(this.localMediaContainer.nativeElement, this.videoElement);
   }

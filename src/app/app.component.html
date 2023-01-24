@@ -16,6 +16,9 @@
         </svg>
       </div>
     </div>
+    <div *ngIf="showButton" style="z-index: 5;position: absolute; top:50%; left:40%">
+      <button (click)="callRequest()" class="btn btn-light"> Call Again</button>
+    </div>
     
     <div class="media-container">
        <div #localMediaContainer></div>  
@@ -56,8 +59,8 @@
           </div> 
         </div>
         <div class="footer">
-          <input class="form me-2  border" [(ngModel)]="message" style="color:white;padding:10px;border-radius:50px;outline: none;width: 75%;background: none;border: 2px solid white !important;" type="text" placeholder="Add a Comment">
-        <svg style="color: white;width: 45px;height: 43px; margin-left: 30px;"  (click)="sendMessage()" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><title>ionicons-v5-q</title><path d="M16,464,496,256,16,48V208l320,48L16,304Z" fill="white"></path></svg>
+          <input class="form me-2  border" [disabled]="loading" [(ngModel)]="message" style="color:white;padding:10px;border-radius:50px;outline: none;width: 75%;background: none;border: 2px solid white !important;" type="text" placeholder="Add a Comment">
+          <svg style="color: white;width: 45px;height: 43px; margin-left: 30px;"  (click)="sendMessage()" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512"><title>ionicons-v5-q</title><path d="M16,464,496,256,16,48V208l320,48L16,304Z" fill="white"></path></svg>
         </div>
 				
 			</div>
