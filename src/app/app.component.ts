@@ -82,6 +82,7 @@ export class AppComponent implements OnInit {
   roomName:any;
   message:any;
   agentCount =0;
+  videos:any[] = [];
   showButton = false;
   messages:any[]=[];
   videoMode = false;
@@ -100,10 +101,11 @@ export class AppComponent implements OnInit {
       seconds--;
       if (seconds == 0) {
         clearInterval(this.timerInterval);
-        if(this.loading)
+        if(this.loading){
           this.toastr.error('No agents availble right now please try again in a while')
           this.loading = false;
           this.showButton = true;
+        }
       }
     }, 1000);
   }
@@ -184,37 +186,35 @@ export class AppComponent implements OnInit {
   }
 
   onTrackSubscribed(track: RemoteTrack) {
-    console.log(track)
     if (!this.trackExistsAndIsAttachable(track))
         return;
 
     this.attachTrack(track);
   }
-  firstvideoElement:any;
-  attachTrack(track: RemoteAudioTrack | RemoteVideoTrack) {
-    this.firstvideoElement = track.attach();
-    this.renderer.setStyle(this.firstvideoElement, 'height', '100%');
-    this.renderer.setStyle(this.firstvideoElement, 'width', '100%');
-    this.renderer.setStyle(this.firstvideoElement, 'position', 'absolute');
-    this.renderer.setStyle(this.firstvideoElement, 'object-fit', 'cover');
-    this.renderer.setStyle(this.firstvideoElement, 'z-index', '0');
-    this.renderer.setStyle(this.firstvideoElement, 'left', '0px');
-    this.renderer.appendChild(this.remoteMediaContainer.nativeElement, this.firstvideoElement);
-  }
-  attachMultiVideoTrack(track: RemoteAudioTrack | RemoteVideoTrack) {
-    this.renderer.setStyle(this.firstvideoElement, 'height', '50%');
+  attachTrack(track: RemoteAudioTrack | RemoteVideoTrack, participant?:any) {
     const videoElement = track.attach();
-    this.renderer.setStyle(videoElement, 'height', '50%');
+    this.renderer.setStyle(videoElement, 'height', '100%');
     this.renderer.setStyle(videoElement, 'width', '100%');
     this.renderer.setStyle(videoElement, 'position', 'absolute');
     this.renderer.setStyle(videoElement, 'object-fit', 'cover');
     this.renderer.setStyle(videoElement, 'z-index', '0');
     this.renderer.setStyle(videoElement, 'left', '0px');
-    this.renderer.setStyle(videoElement, 'top', '50%');
     this.renderer.appendChild(this.remoteMediaContainer.nativeElement, videoElement);
+    this.videos.push({
+      participant:participant,
+      video:videoElement
+    })
+    if(this.remoteMediaContainer.nativeElement.childNodes.length == 4){
+      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[0], 'height', '50%');
+      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[1], 'height', '50%');
+      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[2], 'height', '50%');
+      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[3], 'height', '50%');
+      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[2], 'top', '50%');
+      this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[3], 'top', '50%');
+    }
   }
-
   onTrackUnsubscribed(track: RemoteTrack) {
+    console.log("participantLeave")
     if (this.trackExistsAndIsAttachable(track))
         track.detach().forEach(element => element.remove());
   }
@@ -227,9 +227,6 @@ export class AppComponent implements OnInit {
   }
 
   async onJoinClick() {
-    //joinButton.disabled = true;
-    //this.localVideoTrack()
-
      await connect(this.videoToken, {
         name: this.roomName,
         audio: false,
@@ -257,21 +254,31 @@ export class AppComponent implements OnInit {
         participant.tracks.forEach((publication:any) => {
           if (publication.isSubscribed) {
             const track:any = publication.track;
-            if(this.agentCount == 2){
-              this.attachMultiVideoTrack(track)
-            }
-            else
             this.attachTrack(track)
           }
         });
 
         participant.on('trackSubscribed', (track:any) => {
-          if(this.agentCount == 2){
-            this.attachMultiVideoTrack(track)
-          }
-          else
-          this.attachTrack(track)
+          this.attachTrack(track,participant)
         });
+      });
+      this.room.on('participantDisconnected', (participant:any) => {
+        //this.loading = false;
+        this.videos.forEach((element:any)=>{
+          if(participant == element.participant){
+            this.toastr.error('Agent Disconnected or Left')
+            this.remoteMediaContainer.nativeElement.removeChild(element.video)
+            if(this.remoteMediaContainer.nativeElement.childNodes.length == 2){
+              this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[0], 'height', '100%');
+              this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[0], 'top', '0px');
+              this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[1], 'height', '100%');
+              this.renderer.setStyle(this.remoteMediaContainer.nativeElement.childNodes[1], 'top', '0px');
+            }
+            else if(this.remoteMediaContainer.nativeElement.childNodes.length == 0){
+              this.removeParticipant();
+            }
+          }
+        })
       });
     }, error => {
       console.error(`Unable to connect to Room: ${error.message}`);
@@ -288,7 +295,7 @@ export class AppComponent implements OnInit {
     this.renderer.setStyle(this.videoElement, 'left', '20px');
     this.renderer.setStyle(this.videoElement, 'top', '40px');
     this.renderer.setStyle(this.videoElement, 'z-index', '1');
-    this.renderer.appendChild(this.localMediaContainer.nativeElement, this.videoElement);
+    this.renderer.appendChild(this.localMediaContainer.nativeElement, this.videoElement)
   }
 
   muteVideo(){
@@ -333,17 +340,7 @@ export class AppComponent implements OnInit {
     this.audioMode = true;
     
     if(this.audioPublished === false) {
-
-     /*  const options = new CreateLocalAudioTrackOptions({
-        deviceId: 'default',
-        enable: true,
-        name: 'user audio track'
-      });
-      */
       let localAudioTrack = await createLocalAudioTrack({});
-
-    
-      console.log("going to publish video")
       this.room.localParticipant.publishTrack(localAudioTrack, {
         priority: 'high'
       })

@@ -24,10 +24,6 @@ body {
     transform: rotate(180deg)
 }
 
-#check:checked~.chat-btn .comment {
-    display: none
-}
-
 .chat-btn i {
     font-size: 25px;
     color: #fff !important
