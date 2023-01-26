@@ -1,8 +1,7 @@
   <!-- <button id="join-button" (click)="onJoinClick()">Join Room</button> -->
   <input type="checkbox" id="check"> 
 	<label class="chat-btn" for="check" (click)="getAccessToken()">
-		<img *ngIf="!chatButton" src="../assets/instagram.gif" class="comment" style="border-radius: 50%;"> 
-		<i *ngIf="chatButton" class="fa fa-close close"></i> 
+		<img  src="../assets/instagram.gif" style="border-radius: 50%;">
 	</label>
 <ng-template #customLoadingTemplate>
 </ng-template>
@@ -28,7 +27,7 @@
 			<div  style="z-index: 4;">
         <div style="position: relative; height: 150px;" >
           <i style="font-size:30px;color:white;position: absolute; top:5px;left:17px;" class="bi bi-person-circle"></i>
-          <span style="font-size:18px;color:white;position: absolute; top:14px;left:58px;">User Name</span>
+          <span style="font-size:18px;color:white;position: absolute; top:14px;left:58px;">{{agentName}}</span>
           <i style="font-size:32px;color:white;position: absolute; top:0px;right:10px; cursor: pointer;" (click)="removeParticipant()" class="bi bi-x"></i>
           <i *ngIf="!audioMode" style="font-size:30px;color:white;position: absolute; top:58px;right:15px"(click)="unMuteAudio()" class="fa fa-microphone-slash"></i>
           <i *ngIf="audioMode" style="font-size:30px;color:white;position: absolute; top:58px;right:15px" (click)="muteAudio()" class="fa fa-microphone"></i>

@@ -10,25 +10,6 @@ body {
     cursor: pointer
 }
 
-.chat-btn .close {
-    display: none
-}
-
-.chat-btn i {
-    transition: all 0.9s ease
-}
-
-#check:checked~.chat-btn i {
-    display: block;
-    pointer-events: auto;
-    transform: rotate(180deg)
-}
-
-.chat-btn i {
-    font-size: 25px;
-    color: #fff !important
-}
-
 .chat-btn {
     width: 70px;
     height: 70px;

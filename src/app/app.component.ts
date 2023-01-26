@@ -32,6 +32,7 @@ export class AppComponent implements OnInit {
   @ViewChild ('remoteMediaContainer') remoteMediaContainer:any;
   @ViewChild(ToastContainerDirective, { static: true })
   toastContainer: any;
+  agentName:any;
   contHeigth:any;
   agentImage:any = "url('../assets/background.png')";
   avatar:any = "https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg";
@@ -47,6 +48,7 @@ export class AppComponent implements OnInit {
     this.socketService.connectSocket()
     this.socketService.CallRequestAccepted.subscribe((doc:any) => {
       this.loading = false;
+      this.agentName = doc.agentName
       this.userSid = doc.userSid;
       if(doc.avatar && doc.avatar != ""){
         this.avatar = doc.avatar;
@@ -59,9 +61,10 @@ export class AppComponent implements OnInit {
       this.agentImage = doc.img;
     });
     this.socketService.messageReceived.subscribe((doc:any) => {
+      console.log(doc, this.room)
       const payload ={
         'msg':doc.msg,
-        'agentName':'Test'
+        'agentName':doc.agentName? doc.agentName:'Test'
       }
       this.messages.push(payload)
     });
@@ -201,6 +204,7 @@ export class AppComponent implements OnInit {
     this.renderer.setStyle(videoElement, 'left', '0px');
     this.renderer.appendChild(this.remoteMediaContainer.nativeElement, videoElement);
     this.videos.push({
+      agentName:this.agentName,
       participant:participant,
       video:videoElement
     })
@@ -277,6 +281,9 @@ export class AppComponent implements OnInit {
             else if(this.remoteMediaContainer.nativeElement.childNodes.length == 0){
               this.removeParticipant();
             }
+          }
+          else{
+            this.agentName = element.agentName;
           }
         })
       });
