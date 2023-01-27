@@ -115,7 +115,7 @@ export class AppComponent implements OnInit {
   payload:any;
   getAccessToken(){
     this.chatButton = true;
-    //this.loading = true;
+    this.loading = true;
     this.roomName = UUID.UUID()
     const socketObj=this.socketService.getSocket();
     this.localParticipant = socketObj.ioSocket.id;
