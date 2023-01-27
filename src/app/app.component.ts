@@ -119,7 +119,7 @@ export class AppComponent implements OnInit {
     this.roomName = UUID.UUID()
     const socketObj=this.socketService.getSocket();
     this.localParticipant = socketObj.ioSocket.id;
-    this.twilioService.getAccessToken(socketObj.ioSocket.id,this.roomName).subscribe((data:any)=>{
+    this.twilioService.getAccessToken(socketObj.ioSocket.id+this.roomName,this.roomName).subscribe((data:any)=>{
       this.conversationToken = data.conversationRoomAccessToken;
       this.videoToken = data.videoRoomAccessToken;
       this.payload ={
@@ -309,7 +309,7 @@ export class AppComponent implements OnInit {
     this.videoMode = false;
     this.room.localParticipant.videoTracks.forEach((publication:any) => {
       publication.track.disable();
-     // publication.unpublish();
+      publication.unpublish();
     });
     this.renderer.removeChild(this.localMediaContainer.nativeElement, this.videoElement)
   }
@@ -363,6 +363,8 @@ export class AppComponent implements OnInit {
   removeParticipant(){
     this.socketService.callDicconnected(this.userSid)
     this.room.disconnect();
+    this.muteAudio();
+    this.muteVideo();
     this.chatButton = false;
   }
 }
