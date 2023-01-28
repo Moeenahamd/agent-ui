@@ -30,6 +30,7 @@ const remoteMediaContainer = document.querySelector('#remote-media-container') a
 export class AppComponent implements OnInit {
   @ViewChild ('localMediaContainer') localMediaContainer:any;
   @ViewChild ('remoteMediaContainer') remoteMediaContainer:any;
+  @ViewChild('scrollBottom') scrollBottom: any;
   @ViewChild(ToastContainerDirective, { static: true })
   toastContainer: any;
   agentName:any;
@@ -61,12 +62,12 @@ export class AppComponent implements OnInit {
       this.agentImage = doc.img;
     });
     this.socketService.messageReceived.subscribe((doc:any) => {
-      console.log(doc, this.room)
       const payload ={
         'msg':doc.msg,
         'agentName':doc.agentName? doc.agentName:'Test'
       }
       this.messages.push(payload)
+      this.scrollToBottom();
     });
     this.socketService.agentDisconnected.subscribe((doc:any) => {
       this.messages = [];
@@ -97,6 +98,14 @@ export class AppComponent implements OnInit {
   public audioPublished = false;
   UserlocalVideoTrack:any;
   timerInterval: any;
+
+  scrollToBottom(): void {
+    try {
+      this.scrollBottom.nativeElement.scrollTop = this.scrollBottom.nativeElement.scrollHeight + 400;
+      console.log(
+        this.scrollBottom.nativeElement.scrollTop = this.scrollBottom.nativeElement.scrollHeight,this.scrollBottom.nativeElement.scrollHeight + 400)
+    } catch(err) { }                 
+  }
   timer() {
     // let minute = 1;
     let seconds: number = 60;
@@ -115,7 +124,7 @@ export class AppComponent implements OnInit {
   payload:any;
   getAccessToken(){
     this.chatButton = true;
-    this.loading = true;
+    //this.loading = true;
     this.roomName = UUID.UUID()
     const socketObj=this.socketService.getSocket();
     this.localParticipant = socketObj.ioSocket.id;
@@ -144,11 +153,6 @@ export class AppComponent implements OnInit {
     this.conversationClient = await new Client(this.conversationToken);
   }
 
-  async displayMessages(){
-    const messages = await this.conversation.getMessages(1000);
-    this.messages = messages.items
-  }
-
   async sendMessage(){
     if( this.message && this.message != ''){
       const payload ={
@@ -159,6 +163,7 @@ export class AppComponent implements OnInit {
       this.messages.push({
         "msg":this.message
       })
+      this.scrollToBottom();
       this.message = '';
     }
   }
