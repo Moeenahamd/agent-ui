@@ -4,6 +4,7 @@ import { Client } from '@twilio/conversations';
 import * as Video from 'twilio-video';
 import { UUID } from 'angular2-uuid';
 import { SocketService } from './services/socket.service';
+import AgoraRTC, { IAgoraRTCClient, LiveStreamingTranscodingConfig, ICameraVideoTrack, IMicrophoneAudioTrack, ScreenVideoTrackInitConfig, VideoEncoderConfiguration, AREAS, IRemoteAudioTrack, ClientRole } from "agora-rtc-sdk-ng"
 
 import { 
   connect,
@@ -33,10 +34,17 @@ export class AppComponent implements OnInit {
   @ViewChild('scrollBottom') scrollBottom: any;
   @ViewChild(ToastContainerDirective, { static: true })
   toastContainer: any;
+  agoraClient:any;
   agentName:any;
   contHeigth:any;
   agentImage:any = "url('../assets/background.png')";
   avatar:any = "https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg";
+  options = {
+    appId: "73ea23c25b814adb88d14a29d792cb7e",  // set your appid here
+    channel: "test", // Set the channel name.
+    token: '8ee0cc8992714c22bc4622613c06e413', // Pass a token if your project enables the App Certificate.
+    uid: UUID.UUID()
+  };
   constructor(
     private twilioService: TwilioService,
     private socketService: SocketService,
@@ -44,7 +52,9 @@ export class AppComponent implements OnInit {
     private toastr: ToastrService,
     private el:ElementRef) { }
   ngOnInit(): void {
-    (this.el.nativeElement as HTMLElement).style.setProperty('--vh', window.innerHeight.toString()+"px")
+    (this.el.nativeElement as HTMLElement).style.setProperty('--vh', window.innerHeight.toString()+"px");
+    this.agoraClient = AgoraRTC.createClient({ mode: "rtc", codec: "h264" });
+    console.log(this.agoraClient)
     this.toastr.overlayContainer = this.toastContainer;
     this.socketService.connectSocket()
     this.socketService.CallRequestAccepted.subscribe((doc:any) => {
@@ -122,12 +132,33 @@ export class AppComponent implements OnInit {
     }, 1000);
   }
   payload:any;
+  async initAgoraClient(){
+    debugger
+    const uid = await this.agoraClient.join(this.options.appId, this.options.channel,'007eJxTYCgvn6tW8MRN/k1gj/x2wZLjDz+ZW38snmMedG7ml5nGqRMVGMyNUxONjJONTJMsDE0SU5IsLFKAtJFlirmlUXKSeerGrIfJDYGMDFZ2KxgZGSAQxGdnCMtMLQ8oymdgAADm1yFt',"sadam"); 
+    console.log(this.agoraClient)
+    uid.on("user-published", async (user:any, mediaType:any) =>
+    {
+      console.log(user,mediaType)
+    });
+    uid.on("stream-added", async (user:any, mediaType:any) =>
+    {
+      console.log(user,mediaType)
+    });
+    //const screenTrack = await AgoraRTC.createScreenVideoTrack();
+        
+  }
   getAccessToken(){
     this.chatButton = true;
     //this.loading = true;
     this.roomName = UUID.UUID()
     const socketObj=this.socketService.getSocket();
     this.localParticipant = socketObj.ioSocket.id;
+    this.twilioService.getAgoraToken(socketObj.ioSocket.id).subscribe((data:any)=>{
+      this.options.channel = data.channelName;
+      this.options.token = data.token;
+      this.initAgoraClient();
+
+    })
     this.twilioService.getAccessToken(socketObj.ioSocket.id+this.roomName,this.roomName).subscribe((data:any)=>{
       this.conversationToken = data.conversationRoomAccessToken;
       this.videoToken = data.videoRoomAccessToken;

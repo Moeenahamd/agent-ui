@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
-import { Observable, Observer } from 'rxjs';
-import { map } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })

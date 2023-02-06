@@ -14,6 +14,12 @@ export class TwilioService {
     }
     return this.http.post('https://viewpro.com/api/userRoutes/conversationAndVideoRoom',obj);
   }
+  getAgoraToken(userName:any) {
+    const obj ={
+      "userName": userName,
+    }
+    return this.http.post('http://134.122.28.251:3001/agentRoutes/agoraToken',obj);
+  }
 
   getAgentImage() {
     return this.http.get('https://viewpro.com/api/userRoutes/conversationAndVideoRoom');
