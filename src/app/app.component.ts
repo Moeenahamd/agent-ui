@@ -31,17 +31,20 @@ const remoteMediaContainer = document.querySelector('#remote-media-container') a
 export class AppComponent implements OnInit {
   @ViewChild ('localMediaContainer') localMediaContainer:any;
   @ViewChild ('remoteMediaContainer') remoteMediaContainer:any;
+  @ViewChild ('remoteScreenContainer') remoteScreenContainer:any;
+  
   @ViewChild('scrollBottom') scrollBottom: any;
   @ViewChild(ToastContainerDirective, { static: true })
   toastContainer: any;
   agoraClient:any;
+  screenMode= false;
   agentName:any;
   contHeigth:any;
   agentImage:any = "url('../assets/background.png')";
   avatar:any = "https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg";
   options = {
-    appId: "73ea23c25b814adb88d14a29d792cb7e",  // set your appid here
-    channel: "test", // Set the channel name.
+    appId: "10cd14249e254391817d2b2ee69ae4ff",  // set your appid here
+    channel: "ViewProProduction", // Set the channel name.
     token: '8ee0cc8992714c22bc4622613c06e413', // Pass a token if your project enables the App Certificate.
     uid: UUID.UUID()
   };
@@ -53,8 +56,6 @@ export class AppComponent implements OnInit {
     private el:ElementRef) { }
   ngOnInit(): void {
     (this.el.nativeElement as HTMLElement).style.setProperty('--vh', window.innerHeight.toString()+"px");
-    this.agoraClient = AgoraRTC.createClient({ mode: "rtc", codec: "h264" });
-    console.log(this.agoraClient)
     this.toastr.overlayContainer = this.toastContainer;
     this.socketService.connectSocket()
     this.socketService.CallRequestAccepted.subscribe((doc:any) => {
@@ -90,6 +91,19 @@ export class AppComponent implements OnInit {
   localParticipant:any;
   conversation:any;
   room:any;
+  channelParameters =
+  {
+      // A variable to hold a local audio track.
+      localAudioTrack: null,
+      // A variable to hold a local video track.
+      localVideoTrack: null,
+      // A variable to hold a remote audio track.
+      remoteAudioTrack: null,
+      // A variable to hold a remote video track.
+      remoteVideoTrack: null,
+      // A variable to hold the remote user id.s
+      remoteUid: null,
+  };
   userSid:any;
   videoToken:any;
   userName:any;
@@ -133,19 +147,27 @@ export class AppComponent implements OnInit {
   }
   payload:any;
   async initAgoraClient(){
-    debugger
-    const uid = await this.agoraClient.join(this.options.appId, this.options.channel,'007eJxTYCgvn6tW8MRN/k1gj/x2wZLjDz+ZW38snmMedG7ml5nGqRMVGMyNUxONjJONTJMsDE0SU5IsLFKAtJFlirmlUXKSeerGrIfJDYGMDFZ2KxgZGSAQxGdnCMtMLQ8oymdgAADm1yFt',"sadam"); 
-    console.log(this.agoraClient)
-    uid.on("user-published", async (user:any, mediaType:any) =>
+    const agoraEngine = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+    await agoraEngine.join(this.options.appId, this.options.channel,'00610cd14249e254391817d2b2ee69ae4ffIAB9AIlAWmMBZjwMNvOuO+G69PmtU2/YKGqLLH2nmz4/XCpLAEOwhensEADCrbPxKvHjYwEAAQBDLONj',1000012); 
+    agoraEngine.on("user-published", async (user:any, mediaType:any) =>
     {
-      console.log(user,mediaType)
+      this.screenMode = true;
+        await agoraEngine.subscribe(user, mediaType);
+        if (mediaType === "video") {
+          const remoteVideoTrack = user.videoTrack;
+          
+          this.remoteScreenContainer.nativeElement.style.width = "100%";
+          this.remoteScreenContainer.nativeElement.style.height = "50%";
+          this.remoteScreenContainer.nativeElement.style.position = 'absolute';
+          this.remoteScreenContainer.nativeElement.style.left = '0px';
+          remoteVideoTrack.play(this.remoteScreenContainer.nativeElement);
+        }
+        console.log("subscribe success",user, mediaType);
     });
-    uid.on("stream-added", async (user:any, mediaType:any) =>
+    agoraEngine.on("user-unpublished", async (user:any, mediaType:any) =>
     {
-      console.log(user,mediaType)
-    });
-    //const screenTrack = await AgoraRTC.createScreenVideoTrack();
-        
+      this.screenMode = false;
+    });  
   }
   getAccessToken(){
     this.chatButton = true;
@@ -153,7 +175,7 @@ export class AppComponent implements OnInit {
     this.roomName = UUID.UUID()
     const socketObj=this.socketService.getSocket();
     this.localParticipant = socketObj.ioSocket.id;
-    this.twilioService.getAgoraToken(socketObj.ioSocket.id).subscribe((data:any)=>{
+    this.twilioService.getAgoraToken(this.roomName).subscribe((data:any)=>{
       this.options.channel = data.channelName;
       this.options.token = data.token;
       this.initAgoraClient();

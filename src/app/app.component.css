@@ -13,10 +13,6 @@ h4{
     display: flex;
 }
 
-.media-container > * + * {
-    margin-left: 1.5rem;
-}
-
 .footer{ 
     width: 100%;
     position: absolute;
