@@ -46,7 +46,7 @@ export class AppComponent implements OnInit {
     appId: "10cd14249e254391817d2b2ee69ae4ff",  // set your appid here
     channel: "ViewProProduction", // Set the channel name.
     token: '8ee0cc8992714c22bc4622613c06e413', // Pass a token if your project enables the App Certificate.
-    uid: UUID.UUID()
+    uid: Math.floor((Math.random() * 1000) + 1)
   };
   constructor(
     private twilioService: TwilioService,
@@ -148,7 +148,7 @@ export class AppComponent implements OnInit {
   payload:any;
   async initAgoraClient(){
     const agoraEngine = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-    await agoraEngine.join(this.options.appId, this.options.channel,'00610cd14249e254391817d2b2ee69ae4ffIAB9AIlAWmMBZjwMNvOuO+G69PmtU2/YKGqLLH2nmz4/XCpLAEOwhensEADCrbPxKvHjYwEAAQBDLONj',1000012); 
+    await agoraEngine.join(this.options.appId, this.options.channel,this.options.token, this.options.uid); 
     agoraEngine.on("user-published", async (user:any, mediaType:any) =>
     {
       this.screenMode = true;
@@ -175,7 +175,8 @@ export class AppComponent implements OnInit {
     this.roomName = UUID.UUID()
     const socketObj=this.socketService.getSocket();
     this.localParticipant = socketObj.ioSocket.id;
-    this.twilioService.getAgoraToken(this.roomName).subscribe((data:any)=>{
+    
+    this.twilioService.getAgoraToken(this.options.uid).subscribe((data:any)=>{
       this.options.channel = data.channelName;
       this.options.token = data.token;
       this.initAgoraClient();

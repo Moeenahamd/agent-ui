@@ -21,8 +21,8 @@
     
     <div class="media-container">
        <div #localMediaContainer></div>  
-      <div *ngIf="!screenMode" #remoteMediaContainer></div>
-      <div *ngIf="screenMode"  #remoteScreenContainer></div>
+      <div [hidden]="screenMode" #remoteMediaContainer></div>
+      <div [hidden]="!screenMode"  #remoteScreenContainer></div>
     </div>
         
 			<div  style="z-index: 4;">
