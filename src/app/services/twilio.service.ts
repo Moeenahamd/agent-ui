@@ -18,7 +18,7 @@ export class TwilioService {
     const obj ={
       "agentName": userName,
     }
-    return this.http.post('http://134.122.28.251:3001/agentRoutes/agoraToken',obj);
+    return this.http.post('https://viewpro.com/api/agentRoutes/agoraToken',obj);
   }
 
   getAgentImage() {
